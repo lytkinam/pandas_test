@@ -99,6 +99,74 @@ class my_pandas():
         # в которых приложения разработаны не для всех возрастных групп ('Content Rating')
         print(df[df['Type'] == 'Free'].pivot_table(index = 'Category', columns = 'Content Rating', values = 'Reviews', aggfunc = 'mean'))
 
+    def my_isnull():
+        # Выведи информацию о всем DataFrame, чтобы узнать, какие столбцы нуждаются в очистке
+        print(df.info())
+        
+        # Сколько в датасете приложений, у которых не указан ('NaN') рейтинг ('Rating')?
+        print(len(df[pd.isnull(df['Rating'])]))
+        # Замени пустое значение ('NaN') рейтинга ('Rating') для таких приложений на -1.
+        df['Rating'].fillna(-1, inplace = True)
+        
+    def set_size(size):
+        if size[-1] == 'M':
+            return float(size[:-1])
+        elif size[-1] == 'k':
+            return float(size[:-1]) / 1024
+        return -1
+
+    def my_apply(size):
+        # Определи, какое ещё значение размера ('Size') хранится в датасете помимо Килобайтов и Мегабайтов, замени его на -1.
+        # Преобразуй размеры приложений ('Size') в числовой формат (float). Размер всех приложений должен измеряться в Мегабайтах.
+        print(df['Size'].value_counts())
+
+        df['Size'] = df['Size'].apply(set_size)
+
+        # Чему равен максимальный размер ('Size') приложений из категории ('Category') 'TOOLS'?
+        print(df[df['Category'] == 'TOOLS']['Size'].max())
+ 
+    def set_installs(installs):
+        if installs == '0':
+            return 0
+        return int(installs[:-1].replace(',', ''))
+
+    def my_apply_2():
+        # Бонусные задания
+        # Замени тип данных на целочисленный (int) для количества установок ('Installs').
+        # В записи количества установок ('Installs') знак "+" необходимо игнорировать.
+        # Т.е. если в датасете количество установок равно 1,000,000+, то необходимо изменить значение на 1000000
+        df['Installs'] = df['Installs'].apply(set_installs)
+ 
+        # Сгруппируй данные по категории ('Category') и целевой аудитории ('Content Rating') любым удобным для тебя способом,
+        # посчитай среднее количество установок ('Installs') в каждой группе. Результат округли до десятых.
+        # В полученной таблице найди ячейку с самым большим значением.
+        # К какой возрастной группе и типу приложений относятся данные из этой ячейки?
+        print(round(df.pivot_table(index = 'Content Rating', columns = 'Type', values = 'Installs', aggfunc = 'mean')), 1)
+ 
+    def my_fillna():
+        # У какого приложения не указан тип ('Type')? Какой тип там необходимо записать в зависимости от цены?
+        print(df[pd.isnull(df['Type'])])
+        # Чтобы увидеть все столбцы вместо многоточия, можно применить iloc[0].
+        # print(df[pd.isnull(df['Type'])].iloc[0])
+        df['Type'].fillna('Free', inplace = True)
+ 
+    def my_iloc():      
+        # Выведи на экран приложение с индексом 10472. Посмотри, какие ошибки допущены в значениях.
+        print(df.iloc[10472])
+        
+        # Исправь ошибки, допущенные в значениях
+        columns = list(df.columns)
+        index = 10472
+        for i in range(len(columns) -1, 1, -1):
+            df[columns[i]][index] = df[columns[i - 1]][index]
+        
+        # Среди значений приложения стоит несколько пустых ('NaN'). Замени эти пустые значения на 'Lifestyle'.
+        df['Category'][index] = 'LIFESTYLE'
+        df['Genres'][index] = 'Lifestyle'
+        
+        # Выведи на экран приложение, чтобы убедиться, что очистка прошла успешно
+        print(df.iloc[10472])
+
 
 df = pd.read_csv('GoogleApps.csv')
 my_pandas.my_info()
